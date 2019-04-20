@@ -5,6 +5,10 @@ defmodule Rumbl.Accounts do
   alias Rumbl.Repo
   alias Rumbl.Accounts.User
 
+  def change_user(%User{} = user) do
+    User.changeset(user, %{})
+  end
+
   def get_user(id) do
     Repo.get(User, id)
   end
