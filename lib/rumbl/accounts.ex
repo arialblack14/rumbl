@@ -31,6 +31,16 @@ defmodule Rumbl.Accounts do
     Repo.all(User)
   end
 
+  def change_registration(%User{} = user, params) do
+    User.registration_changeset(user, params)
+  end
+
+  def register_user(attrs \\ %{}) do
+    %User{}
+    |> User.change_registration(attrs)
+    |> Repo.insert()
+  end
+
   alias Rumbl.Accounts.Credential
 
   @doc """
