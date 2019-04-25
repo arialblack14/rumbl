@@ -5,6 +5,15 @@ defmodule RumblWeb.UserController do
   alias Rumbl.Accounts.User
 
   def index(conn, _params) do
+    case authenticate(conn) do
+      %Plug.Conn{halted: true} = conn ->
+        conn
+
+      conn ->
+        users = Accounts.list_users()
+        render(conn, "index.html", users: users)
+    end
+
     users = Accounts.list_users()
     render(conn, "index.html", users: users)
   end
@@ -28,6 +37,17 @@ defmodule RumblWeb.UserController do
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
+    end
+  end
+
+  def authenticate(conn) do
+    if conn.assigns.current_user do
+      conn
+    else
+      conn
+      |> put_flash(:error, "You must be logged in to access this page.")
+      |> redirect(to: Routes.page_path(conn, :index))
+      |> halt()
     end
   end
 end
