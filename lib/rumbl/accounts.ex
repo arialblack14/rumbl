@@ -5,6 +5,8 @@ defmodule Rumbl.Accounts do
   alias Rumbl.Repo
   alias Rumbl.Accounts.User
 
+  import Ecto.Query
+
   def change_user(%User{} = user) do
     User.changeset(user, %{})
   end
@@ -25,6 +27,28 @@ defmodule Rumbl.Accounts do
 
   def get_user_by(params) do
     Repo.get_user_by(User, params)
+  end
+
+  def get_user_by_email(email) do
+    from(u in User, join: c in assoc(u, :credential), where: c.email == ^email)
+    |> Repo.one()
+    |> Repo.preload(:credential)
+  end
+
+  def authenticate_by_email_and_pass(email, given_pass) do
+    user = get_user_by_email(email)
+
+    cond do
+      user && Comeonin.Pbkdf2.checkpw(given_pass, user.credential.password_hash) ->
+        {:ok, user}
+
+      user ->
+        {:error, :unauthorized}
+
+      true ->
+        Comeonin.Pbkdf2.dummy_checkpw()
+        {:error, :not_found}
+    end
   end
 
   def list_users do
