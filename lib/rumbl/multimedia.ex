@@ -5,6 +5,7 @@ defmodule Rumbl.Multimedia do
 
   import Ecto.Query, warn: false
   alias Rumbl.Repo
+  alias Rumbl.Accounts
 
   alias Rumbl.Multimedia.Video
 
@@ -49,9 +50,10 @@ defmodule Rumbl.Multimedia do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_video(attrs \\ %{}) do
+  def create_video(%Accounts.User{} = user, attrs \\ %{}) do
     %Video{}
     |> Video.changeset(attrs)
+    |> put_user(user)
     |> Repo.insert()
   end
 
@@ -98,7 +100,13 @@ defmodule Rumbl.Multimedia do
       %Ecto.Changeset{source: %Video{}}
 
   """
-  def change_video(%Video{} = video) do
-    Video.changeset(video, %{})
+  def change_video(%Accounts.User{} = user, %Video{} = video) do
+    video
+    |> Video.changeset(%{})
+    |> put_user(user)
+  end
+
+  defp put_user(changeset, user) do
+    Ecto.Changeset.put_assoc(changeset, :user, user)
   end
 end
