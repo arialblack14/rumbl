@@ -1,5 +1,5 @@
 defmodule Rumbl.AccountsTest do
-  use Rumbl.Database
+  use Rumbl.DataCase
 
   alias Rumbl.Accounts
   alias Rumbl.Accounts.User
@@ -10,19 +10,19 @@ defmodule Rumbl.AccountsTest do
       username: "eva",
       credential: %{email: "eva@test.com", password: "secret"}
     }
-    @invalid_attrs = %{}
+    @invalid_attrs %{}
 
     test "with valid data inserts user" do
       assert {:ok, %User{id: id} = user} = Accounts.register_user(@valid_attrs)
-      assert user.name = "User"
-      assert user.username = "eva"
-      assert user.credential.email = "eva@test.com"
+      assert user.name == "User"
+      assert user.username == "eva"
+      assert user.credential.email == "eva@test.com"
       assert [%User{id: ^id}] = Accounts.list_users()
     end
 
     test "with invalid data does not insert user" do
       assert {:error, changeset} = Accounts.register_user(@invalid_attrs)
-      assert Accounts.list_users() = []
+      assert Accounts.list_users() == []
     end
 
     test "enforces unique usernames" do
@@ -38,7 +38,7 @@ defmodule Rumbl.AccountsTest do
       {:error, changeset} = Accounts.register_user(attrs)
 
       assert %{username: ["should be at most 20 character(s)"]} = errors_on(changeset)
-      assert Accounts.list_users() = []
+      assert Accounts.list_users() == []
     end
 
     test "requires password to be at least 6 characters long" do
@@ -48,7 +48,7 @@ defmodule Rumbl.AccountsTest do
       assert %{password: ["should be at least 6 character(s)"]} =
                errors_on(changeset)[:credential]
 
-      assert Accounts.list_users() = []
+      assert Accounts.list_users() == []
     end
   end
 end
