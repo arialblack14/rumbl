@@ -26,9 +26,9 @@ defmodule Rumbl.MultimediaTest do
     test "list_videos/0 returns all videos" do
       owner = user_fixture()
       %Video{id: id1} = video_fixture(owner)
-      assert [%Video{id: ^id1}] == Multimedia.list_videos()
+      assert [%Video{id: ^id1}] = Multimedia.list_videos()
       %Video{id: id2} = video_fixture(owner)
-      assert [%Video{id: ^id1}, %Video{id: ^id2}] == Multimedia.list_videos()
+      assert [%Video{id: ^id1}, %Video{id: ^id2}] = Multimedia.list_videos()
     end
 
     test "get_video!\1 returns the video with given id" do
@@ -50,20 +50,22 @@ defmodule Rumbl.MultimediaTest do
       assert {:error, %Ecto.Changeset{}} = Multimedia.create_video(owner, @invalid_attrs)
     end
 
-    test "update_video\2 with valid data updates the video" do
+    test "update_video/2 with valid data updates the video" do
       owner = user_fixture()
       video = video_fixture(owner)
-      assert(:ok, video) = Multimedia.update(video, title: "Some wrong title.")
+      assert {:ok, video} = Multimedia.update_video(video, %{title: "Some title."})
+      assert %Video{} = video
+      assert video.title == "Some title."
     end
 
-    test "update_video\2 with invalid data returns error changeset" do
+    test "update_video/2 with invalid data returns error changeset" do
       owner = user_fixture()
       %Video{id: id} = video = video_fixture(owner)
-      assert(:error, %Ecto.Changeset{}) = Multimedia.update_video(video, @invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} = Multimedia.update_video(video, @invalid_attrs)
       assert %Video{id: ^id} = Multimedia.get_video!(id)
     end
 
-    test "delete_video\1 deletes a video" do
+    test "delete_video/1 deletes a video" do
       owner = user_fixture()
       video = video_fixture(owner)
 
@@ -71,7 +73,10 @@ defmodule Rumbl.MultimediaTest do
       assert Multimedia.list_videos() == []
     end
 
-    test "change_video\2 changes a video" do
+    test "change_video/2 returns a video changeset" do
+      owner = user_fixture()
+      video = video_fixture(owner)
+      assert %Ecto.Changeset{} = Multimedia.change_video(owner, video)
     end
   end
 end
